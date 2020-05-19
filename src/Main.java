@@ -7,7 +7,8 @@ public class Main {
         // Import file as a String
         try {
             String inputFile = new String(Files.readAllBytes(Paths.get("homework2.gv")));
-            System.out.println(inputFile);
+            Lexer lexer = new Lexer(inputFile);
+            lexer.consume();
         } catch (Exception e) {
             e.printStackTrace();
         }
