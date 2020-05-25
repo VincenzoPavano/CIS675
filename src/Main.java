@@ -8,7 +8,7 @@ public class Main {
         try {
             String inputFile = new String(Files.readAllBytes(Paths.get("homework2.gv")));
             Lexer lexer = new Lexer(inputFile);
-            lexer.consume();
+            lexer.nextToken();
         } catch (Exception e) {
             e.printStackTrace();
         }

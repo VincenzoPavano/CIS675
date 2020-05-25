@@ -9,7 +9,7 @@ public class Token {
     @Override
     public String toString() {
         String tokenString = tokenType.name();
-        System.out.println(tokenString);
+        System.out.print(tokenString + " ");
         return tokenString;
     }
 }
