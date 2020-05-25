@@ -93,7 +93,7 @@ public class Lexer {
             } else if (Character.isLetter(currentChar)) {
                 // Build the word and return
                 StringBuilder builder = new StringBuilder();
-                while (Character.isLetter(currentChar)) {
+                while (Character.isLetter(currentChar) || currentChar == '_') {
                     builder.append(currentChar);
                     consume();
                 }
