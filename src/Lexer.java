@@ -60,6 +60,9 @@ public class Lexer {
             } else if (currentChar == ':') {
                 consume();
                 new Token(TokenType.COLON).toString();
+            } else if (currentChar == ',') {
+                consume();
+                new Token(TokenType.COMMA).toString();
             } else if (currentChar == '/') {
                 // Could be the start of a comment
                 // Loop through the following characters and check
@@ -70,6 +73,23 @@ public class Lexer {
                         consume();
                     }
                 }
+            } else if (currentChar == '-') {
+                // Could possibly be a edgeop
+                consume();
+                if (currentChar == '>') {
+                    consume();
+                    new Token(TokenType.EDGEOP).toString();
+                }
+            } else if (currentChar == '\"') {
+                // Property - ignore until the next quote and call "ID"
+                consume();
+                while (currentChar != '\"') {
+                    consume();
+                }
+                consume();
+            } else if (Character.isDigit(currentChar)) {
+                consume();
+                new Token(TokenType.NUMBER).toString();
             } else if (Character.isLetter(currentChar)) {
                 // Build the word and return
                 StringBuilder builder = new StringBuilder();
@@ -81,14 +101,13 @@ public class Lexer {
 
                 if (lexeme.equals("digraph")) {
                     new Token(TokenType.DIGRAPH).toString();
-                } else if (lexeme.equals("->")) {
-                    new Token(TokenType.EDGEOP).toString();
                 } else if (lexeme.equals("node")) {
                     new Token(TokenType.NODE).toString();
                 } else {
                     new Token(TokenType.ID).toString();
                 }
             } else {
+                consume();
                 new Token(TokenType.ID).toString();
             }
         }

@@ -6,12 +6,10 @@ public enum TokenType {
     L_BRACKET,
     R_BRACKET,
     COLON,
-    COMMENT,
-    METHOD,
     EDGEOP,
-    LIST,
     EQUAL,
     SEMICOLON,
     NODE,
-    EOF
+    NUMBER,
+    COMMA
 }
