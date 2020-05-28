@@ -30,6 +30,7 @@ public class Lexer {
     }
 
     public void nextToken() {
+        Token t;
         ArrayList<Character> whitespace = new ArrayList<>();
         whitespace.add(' ');
         whitespace.add('\t');
@@ -41,28 +42,36 @@ public class Lexer {
                 consume();
             } else if (currentChar == '{') {
                 consume();
-                new Token(TokenType.L_BRACE).toString();
+                t = new Token(TokenType.L_BRACE, "{");
+                t.toString();
             } else if (currentChar == '}') {
                 consume();
-                new Token(TokenType.R_BRACE).toString();
+                t = new Token(TokenType.R_BRACE, "}");
+                t.toString();
             } else if (currentChar == '[') {
                 consume();
-                new Token(TokenType.L_BRACKET).toString();
+                t = new Token(TokenType.L_BRACKET, "[");
+                t.toString();
             } else if (currentChar == ']') {
                 consume();
-                new Token(TokenType.R_BRACKET).toString();
+                t = new Token(TokenType.R_BRACKET, "]");
+                t.toString();
             } else if (currentChar == '=') {
                 consume();
-                new Token(TokenType.EQUAL).toString();
+                t = new Token(TokenType.EQUAL, "=");
+                t.toString();
             } else if (currentChar == ';') {
                 consume();
-                new Token(TokenType.SEMICOLON).toString();
+                t = new Token(TokenType.SEMICOLON, ";");
+                t.toString();
             } else if (currentChar == ':') {
                 consume();
-                new Token(TokenType.COLON).toString();
+                t = new Token(TokenType.COLON, ":");
+                t.toString();
             } else if (currentChar == ',') {
                 consume();
-                new Token(TokenType.COMMA).toString();
+                t = new Token(TokenType.COMMA, ",");
+                t.toString();
             } else if (currentChar == '/') {
                 // Could be the start of a comment
                 // Loop through the following characters and check
@@ -78,7 +87,8 @@ public class Lexer {
                 consume();
                 if (currentChar == '>') {
                     consume();
-                    new Token(TokenType.EDGEOP).toString();
+                    t = new Token(TokenType.EDGEOP, "->");
+                    t.toString();
                 }
             } else if (currentChar == '\"') {
                 // Property - ignore until the next quote and call "ID"
@@ -89,7 +99,8 @@ public class Lexer {
                 consume();
             } else if (Character.isDigit(currentChar)) {
                 consume();
-                new Token(TokenType.NUMBER).toString();
+                t = new Token(TokenType.NUMBER, "");
+                t.toString();
             } else if (Character.isLetter(currentChar)) {
                 // Build the word and return
                 StringBuilder builder = new StringBuilder();
@@ -100,15 +111,19 @@ public class Lexer {
                 String lexeme = builder.toString();
 
                 if (lexeme.equals("digraph")) {
-                    new Token(TokenType.DIGRAPH).toString();
+                    t = new Token(TokenType.DIGRAPH, "digraph");
+                    t.toString();
                 } else if (lexeme.equals("node")) {
-                    new Token(TokenType.NODE).toString();
+                    t = new Token(TokenType.NODE, "node");
+                t.toString();
                 } else {
-                    new Token(TokenType.ID).toString();
+                    t = new Token(TokenType.ID, lexeme);
+                    t.toString();
                 }
             } else {
                 consume();
-                new Token(TokenType.ID).toString();
+                t = new Token(TokenType.ID, "");
+                t.toString();
             }
         }
     }
