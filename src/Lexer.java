@@ -29,8 +29,8 @@ public class Lexer {
         }
     }
 
-    public void nextToken() {
-        Token t;
+    public Token nextToken() {
+        Token t = null;
         ArrayList<Character> whitespace = new ArrayList<>();
         whitespace.add(' ');
         whitespace.add('\t');
@@ -44,34 +44,42 @@ public class Lexer {
                 consume();
                 t = new Token(TokenType.L_BRACE, "{");
                 t.toString();
+                return t;
             } else if (currentChar == '}') {
                 consume();
                 t = new Token(TokenType.R_BRACE, "}");
                 t.toString();
+                return t;
             } else if (currentChar == '[') {
                 consume();
                 t = new Token(TokenType.L_BRACKET, "[");
                 t.toString();
+                return t;
             } else if (currentChar == ']') {
                 consume();
                 t = new Token(TokenType.R_BRACKET, "]");
                 t.toString();
+                return t;
             } else if (currentChar == '=') {
                 consume();
                 t = new Token(TokenType.EQUAL, "=");
                 t.toString();
+                return t;
             } else if (currentChar == ';') {
                 consume();
                 t = new Token(TokenType.SEMICOLON, ";");
                 t.toString();
+                return t;
             } else if (currentChar == ':') {
                 consume();
                 t = new Token(TokenType.COLON, ":");
                 t.toString();
+                return t;
             } else if (currentChar == ',') {
                 consume();
                 t = new Token(TokenType.COMMA, ",");
                 t.toString();
+                return t;
             } else if (currentChar == '/') {
                 // Could be the start of a comment
                 // Loop through the following characters and check
@@ -89,6 +97,7 @@ public class Lexer {
                     consume();
                     t = new Token(TokenType.EDGEOP, "->");
                     t.toString();
+                    return t;
                 }
             } else if (currentChar == '\"') {
                 // Property - ignore until the next quote and call "ID"
@@ -101,6 +110,7 @@ public class Lexer {
                 consume();
                 t = new Token(TokenType.NUMBER, "");
                 t.toString();
+                return t;
             } else if (Character.isLetter(currentChar)) {
                 // Build the word and return
                 StringBuilder builder = new StringBuilder();
@@ -115,16 +125,23 @@ public class Lexer {
                     t.toString();
                 } else if (lexeme.equals("node")) {
                     t = new Token(TokenType.NODE, "node");
-                t.toString();
+                    t.toString();
                 } else {
                     t = new Token(TokenType.ID, lexeme);
                     t.toString();
                 }
+                return t;
             } else {
                 consume();
                 t = new Token(TokenType.ID, "");
                 t.toString();
+                return t;
             }
         }
+        return null;
+    }
+
+    public char getCurrentChar() {
+        return currentChar;
     }
 }
