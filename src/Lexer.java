@@ -106,6 +106,9 @@ public class Lexer {
                     consume();
                 }
                 consume();
+                t = new Token(TokenType.ID, "");
+                t.toString();
+                return t;
             } else if (Character.isDigit(currentChar)) {
                 consume();
                 t = new Token(TokenType.NUMBER, "");
