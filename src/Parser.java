@@ -1,15 +1,15 @@
 public class Parser {
     /**
      * An LL(1) parser defining the DOT language
-     *
+     * <p>
      * Grammars:
      * 1: ID '[' elements ']'
      * 2: ID '->' ID ';'
-     *            '[' elements ']'
-     *
+     * '[' elements ']'
+     * <p>
      * elements: element (',' element)*
      * element: ID | list
-     *
+     * <p>
      * ';' at EOL (alist)
      * have lexer keep track of number of new lines/characters for error reporting
      */
@@ -29,23 +29,22 @@ public class Parser {
         if (lookahead.getTokenType() == tokenType) {
             consume();
         } else {
-            System.out.println("Error in parsing token type");
+            System.out.println("Error in parsing token type: " + tokenType.name());
         }
     }
 
+    /**
+     * NOTE: In an ideal world, the compiler won't need to manually "match" each case
+     */
     public void parseClass() {
-        // Classes should always begin the same way:
-        // DIGRAPH ID LBRACKET
 
         match(TokenType.DIGRAPH);
         match(TokenType.ID);
         match(TokenType.L_BRACE);
-        match(TokenType.ID);
 
-        // Parse the rest of the class
-        while (lexer.getCurrentChar() != '}') {
-            parseElement();
-        }
+        match(TokenType.ID);
+        parseList();
+        match(TokenType.SEMICOLON);
     }
 
     private void parseElement() {
@@ -55,7 +54,8 @@ public class Parser {
             parseList();
         } else if (lookahead.getTokenType() == TokenType.EDGEOP) {
             parseEdgeop();
-        } else if (lookahead.getTokenType() == TokenType.EQUAL) {
+        } else if (lookahead.getTokenType() == TokenType.EQUAL
+                || lookahead.getTokenType() == TokenType.R_BRACKET) {
             consume();
         } else {
             System.out.println("Error in parsing element: " + lookahead.getTokenType());
@@ -84,8 +84,8 @@ public class Parser {
 
     private void parseElements() {
         parseElement();
-        while (lookahead.getTokenType() == TokenType.COMMA) {
-            match(TokenType.COMMA);
+        while (lookahead.getTokenType() == TokenType.EQUAL) {
+            match(TokenType.EQUAL);
             parseElement();
         }
     }
