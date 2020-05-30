@@ -66,6 +66,8 @@ public class Parser {
         lineNumber++;
         parseEdgeop();
         lineNumber++;
+
+        System.out.println("No syntax errors found!");
     }
 
     private void parseElement() {
