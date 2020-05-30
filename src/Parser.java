@@ -45,11 +45,15 @@ public class Parser {
         match(TokenType.ID);
         parseList();
         match(TokenType.SEMICOLON);
+
+        parseEdgeop();
     }
 
     private void parseElement() {
         if (lookahead.getTokenType() == TokenType.ID) {
             match(TokenType.ID);
+        } else if (lookahead.getTokenType() == TokenType.NUMBER) {
+            match(TokenType.NUMBER);
         } else if (lookahead.getTokenType() == TokenType.L_BRACKET) {
             parseList();
         } else if (lookahead.getTokenType() == TokenType.EDGEOP) {
@@ -66,9 +70,12 @@ public class Parser {
         // ID '[' elements ']' ';'
         // ID ';'
         match(TokenType.ID);
+        match(TokenType.EDGEOP);
+        match(TokenType.ID);
 
         if (lookahead.getTokenType() == TokenType.L_BRACKET) {
             parseElements();
+            match(TokenType.SEMICOLON);
         } else if (lookahead.getTokenType() == TokenType.SEMICOLON) {
             consume();
         } else {
