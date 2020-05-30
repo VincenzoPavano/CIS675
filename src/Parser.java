@@ -15,10 +15,12 @@ public class Parser {
      */
     private Lexer lexer;
     private Token lookahead;
+    private int lineNumber;
 
     public Parser(Lexer lexer) {
         this.lexer = lexer;
         this.lookahead = lexer.nextToken();
+        this.lineNumber = 1;
     }
 
     private void consume() {
@@ -30,6 +32,8 @@ public class Parser {
             consume();
         } else {
             System.out.println("Error in parsing token type: " + tokenType.name());
+            System.out.println("Line Number: " + lineNumber);
+            System.exit(1);
         }
     }
 
@@ -41,18 +45,27 @@ public class Parser {
         match(TokenType.DIGRAPH);
         match(TokenType.ID);
         match(TokenType.L_BRACE);
+        lineNumber++;
 
         match(TokenType.ID);
         parseList();
         match(TokenType.SEMICOLON);
+        lineNumber++;
 
         parseEdgeop();
+        lineNumber++;
         parseEdgeop();
+        lineNumber++;
         parseEdgeop();
+        lineNumber++;
         parseEdgeop();
+        lineNumber++;
         parseEdgeop();
+        lineNumber++;
         parseEdgeop();
+        lineNumber++;
         parseEdgeop();
+        lineNumber++;
     }
 
     private void parseElement() {
@@ -70,6 +83,8 @@ public class Parser {
             // TODO: This is a bug, but for now, just ignore R_BRACKET
         } else {
             System.out.println("Error in parsing element: " + lookahead.getTokenType());
+            System.out.println("Line Number: " + lineNumber);
+            System.exit(1);
         }
     }
 
@@ -87,6 +102,8 @@ public class Parser {
             consume();
         } else {
             System.out.println("Error in parsing element: " + lookahead.getTokenType());
+            System.out.println("Line Number: " + lineNumber);
+            System.exit(1);
         }
     }
 
@@ -106,7 +123,8 @@ public class Parser {
         parseElement();
         while (lookahead.getTokenType() == TokenType.EQUAL) {
             match(TokenType.EQUAL);
-            parseElement();
+            match(TokenType.ID);
+            //parseElement();
         }
     }
 }
