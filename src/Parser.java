@@ -47,6 +47,12 @@ public class Parser {
         match(TokenType.SEMICOLON);
 
         parseEdgeop();
+        parseEdgeop();
+        parseEdgeop();
+        parseEdgeop();
+        parseEdgeop();
+        parseEdgeop();
+        parseEdgeop();
     }
 
     private void parseElement() {
@@ -58,9 +64,10 @@ public class Parser {
             parseList();
         } else if (lookahead.getTokenType() == TokenType.EDGEOP) {
             parseEdgeop();
-        } else if (lookahead.getTokenType() == TokenType.EQUAL
-                || lookahead.getTokenType() == TokenType.R_BRACKET) {
+        } else if (lookahead.getTokenType() == TokenType.EQUAL) {
             consume();
+        } else if (lookahead.getTokenType() == TokenType.R_BRACKET) {
+            // TODO: This is a bug, but for now, just ignore R_BRACKET
         } else {
             System.out.println("Error in parsing element: " + lookahead.getTokenType());
         }
@@ -86,6 +93,12 @@ public class Parser {
     private void parseList() {
         match(TokenType.L_BRACKET);
         parseElements();
+
+        while (lookahead.getTokenType() == TokenType.COMMA) {
+            // Call parseElements again until the list is finished
+            match(TokenType.COMMA);
+            parseElements();
+        }
         match(TokenType.R_BRACKET);
     }
 
