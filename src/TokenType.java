@@ -11,5 +11,7 @@ public enum TokenType {
     SEMICOLON,
     NODE,
     NUMBER,
-    COMMA
+    COMMA,
+    STRICT,
+    GRAPH
 }

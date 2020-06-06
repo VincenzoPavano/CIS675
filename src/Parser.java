@@ -1,26 +1,11 @@
 public class Parser {
-    /**
-     * An LL(1) parser defining the DOT language
-     * <p>
-     * Grammars:
-     * 1: ID '[' elements ']'
-     * 2: ID '->' ID ';'
-     * '[' elements ']'
-     * <p>
-     * elements: element (',' element)*
-     * element: ID | list
-     * <p>
-     * ';' at EOL (alist)
-     * have lexer keep track of number of new lines/characters for error reporting
-     */
+
     private Lexer lexer;
     private Token lookahead;
-    private int lineNumber;
 
     public Parser(Lexer lexer) {
         this.lexer = lexer;
         this.lookahead = lexer.nextToken();
-        this.lineNumber = 1;
     }
 
     private void consume() {
@@ -31,102 +16,129 @@ public class Parser {
         if (lookahead.getTokenType() == tokenType) {
             consume();
         } else {
-            System.out.println("Error in parsing token type: " + tokenType.name());
-            System.out.println("Line Number: " + lineNumber);
-            System.exit(1);
+            onError(tokenType);
         }
     }
 
-    /**
-     * NOTE: In an ideal world, the compiler won't need to manually "match" each case
-     */
-    public void parseClass() {
+    public void parseGraph() {
+        // [ strict ] (graph | digraph) [ ID ] '{' stmt_list '}'
+        if (lookahead.getTokenType() == TokenType.STRICT) {
+            match(TokenType.STRICT);
+        }
 
-        match(TokenType.DIGRAPH);
-        match(TokenType.ID);
-        match(TokenType.L_BRACE);
-        lineNumber++;
+        // Should be graph|digraph
+        if (lookahead.getTokenType() == TokenType.GRAPH) {
+            match(TokenType.GRAPH);
+        } else if (lookahead.getTokenType() == TokenType.DIGRAPH) {
+            match(TokenType.DIGRAPH);
+        } else {
+            onError(lookahead.getTokenType());
+        }
 
-        match(TokenType.ID);
-        parseList();
-        match(TokenType.SEMICOLON);
-        lineNumber++;
-
-        parseEdgeop();
-        lineNumber++;
-        parseEdgeop();
-        lineNumber++;
-        parseEdgeop();
-        lineNumber++;
-        parseEdgeop();
-        lineNumber++;
-        parseEdgeop();
-        lineNumber++;
-        parseEdgeop();
-        lineNumber++;
-        parseEdgeop();
-        lineNumber++;
-
-        System.out.println("No syntax errors found!");
-    }
-
-    private void parseElement() {
+        // Class name
         if (lookahead.getTokenType() == TokenType.ID) {
             match(TokenType.ID);
-        } else if (lookahead.getTokenType() == TokenType.NUMBER) {
-            match(TokenType.NUMBER);
-        } else if (lookahead.getTokenType() == TokenType.L_BRACKET) {
-            parseList();
-        } else if (lookahead.getTokenType() == TokenType.EDGEOP) {
-            parseEdgeop();
-        } else if (lookahead.getTokenType() == TokenType.EQUAL) {
-            consume();
-        } else if (lookahead.getTokenType() == TokenType.R_BRACKET) {
-            // TODO: This is a bug, but for now, just ignore R_BRACKET
-        } else {
-            System.out.println("Error in parsing element: " + lookahead.getTokenType());
-            System.out.println("Line Number: " + lineNumber);
-            System.exit(1);
         }
+
+        // {
+        match(TokenType.L_BRACE);
+
+        // Parse statements
+        parseStmtList();
+
+        // Close the class
+        match(TokenType.R_BRACE);
     }
 
-    private void parseEdgeop() {
-        // ID '[' elements ']' ';'
-        // ID ';'
-        match(TokenType.ID);
-        match(TokenType.EDGEOP);
+    private void parseStmtList() {
+        parseStmt();
+
+        if (lookahead.getTokenType() == TokenType.SEMICOLON) {
+            match(TokenType.SEMICOLON);
+        }
+
+        //parseStmtList();
+    }
+
+    private void parseStmt() {
+        parseNodeStmt();
+        parseEdgeStmt();
+
+        if (lookahead.getTokenType() == TokenType.ID) {
+            match(TokenType.ID);
+
+            parseIDEqualsID();
+        }
+
+        // Ignoring subgraph case
+    }
+
+    private void parseNodeStmt() {
         match(TokenType.ID);
 
         if (lookahead.getTokenType() == TokenType.L_BRACKET) {
-            parseElements();
-            match(TokenType.SEMICOLON);
-        } else if (lookahead.getTokenType() == TokenType.SEMICOLON) {
-            consume();
-        } else {
-            System.out.println("Error in parsing element: " + lookahead.getTokenType());
-            System.out.println("Line Number: " + lineNumber);
-            System.exit(1);
+            parseAttrList();
         }
     }
 
-    private void parseList() {
-        match(TokenType.L_BRACKET);
-        parseElements();
-
-        while (lookahead.getTokenType() == TokenType.COMMA) {
-            // Call parseElements again until the list is finished
-            match(TokenType.COMMA);
-            parseElements();
+    private void parseEdgeStmt() {
+        if (parseNodeId()) {
+            parseEdgeRHS();
         }
-        match(TokenType.R_BRACKET);
     }
 
-    private void parseElements() {
-        parseElement();
-        while (lookahead.getTokenType() == TokenType.EQUAL) {
-            match(TokenType.EQUAL);
+    private void parseEdgeRHS() {
+        match(TokenType.EDGEOP);
+
+        if (parseNodeId()) {
+            // Recursively call function
+        }
+    }
+
+    private boolean parseNodeId() {
+        if (lookahead.getTokenType() == TokenType.ID) {
             match(TokenType.ID);
-            //parseElement();
+            return true;
         }
+
+        return false;
+    }
+
+    private void parseAttrList() {
+        match(TokenType.L_BRACKET);
+
+        parseAList();
+
+        match(TokenType.R_BRACKET);
+
+        // Recursively call
+//        parseAttrList();
+    }
+
+    private void parseAList() {
+        parseIDEqualsID();
+
+        if (lookahead.getTokenType() == TokenType.COMMA
+                || lookahead.getTokenType() == TokenType.SEMICOLON) {
+            match(lookahead.getTokenType());
+        }
+
+        // Recursively
+//        parseAList();
+    }
+
+    private void parseIDEqualsID() {
+        if (lookahead.getTokenType() == TokenType.EQUAL) {
+            match(TokenType.ID);
+
+            if (lookahead.getTokenType() == TokenType.ID) {
+                match(TokenType.ID);
+            }
+        }
+    }
+
+    private void onError(TokenType tokenType) {
+        System.out.println("Error in parsing token type: " + tokenType.name());
+        System.exit(1);
     }
 }
