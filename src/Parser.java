@@ -44,13 +44,16 @@ public class Parser {
         match(TokenType.L_BRACE);
 
         // Parse statements
-        parseStmtList();
+        while (lookahead.getTokenType() != TokenType.R_BRACE) {
+            parseStmtList();
+        }
 
         // Close the class
         match(TokenType.R_BRACE);
     }
 
     private void parseStmtList() {
+        // [ stmt [ ';' ] stmt_list ]c
         parseStmt();
 
         if (lookahead.getTokenType() == TokenType.SEMICOLON) {
@@ -65,8 +68,6 @@ public class Parser {
         parseEdgeStmt();
 
         if (lookahead.getTokenType() == TokenType.ID) {
-            match(TokenType.ID);
-
             parseIDEqualsID();
         }
 
@@ -82,16 +83,27 @@ public class Parser {
     }
 
     private void parseEdgeStmt() {
-        if (parseNodeId()) {
+        if (!parseNodeId()) {
             parseEdgeRHS();
+
+            if (parseNodeId() && lookahead.getTokenType() != TokenType.SEMICOLON) {
+                parseAttrList();
+            }
         }
     }
 
     private void parseEdgeRHS() {
-        match(TokenType.EDGEOP);
+        if (lookahead.getTokenType() == TokenType.EDGEOP) {
+            match(TokenType.EDGEOP);
 
-        if (parseNodeId()) {
-            // Recursively call function
+//            if (parseNodeId()) {
+//
+            // Return since the parseAttrList() method will match() for us
+//                if (lookahead.getTokenType() == TokenType.L_BRACKET) {
+//                    match(TokenType.L_BRACKET);
+//                }
+            // Recursively call function?
+//            }
         }
     }
 
@@ -120,19 +132,21 @@ public class Parser {
 
         if (lookahead.getTokenType() == TokenType.COMMA
                 || lookahead.getTokenType() == TokenType.SEMICOLON) {
-            match(lookahead.getTokenType());
+            //match(lookahead.getTokenType());
+            parseAList();
         }
-
-        // Recursively
-//        parseAList();
     }
 
     private void parseIDEqualsID() {
-        if (lookahead.getTokenType() == TokenType.EQUAL) {
+        if (lookahead.getTokenType() == TokenType.ID) {
             match(TokenType.ID);
 
-            if (lookahead.getTokenType() == TokenType.ID) {
-                match(TokenType.ID);
+            if (lookahead.getTokenType() == TokenType.EQUAL) {
+                match(TokenType.EQUAL);
+
+                if (lookahead.getTokenType() == TokenType.ID) {
+                    match(TokenType.ID);
+                }
             }
         }
     }

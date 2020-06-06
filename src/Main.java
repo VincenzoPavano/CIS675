@@ -8,9 +8,8 @@ public class Main {
         try {
             String inputFile = new String(Files.readAllBytes(Paths.get("homework2.gv")));
             Lexer lexer = new Lexer(inputFile);
-            ParserOld parser = new ParserOld(lexer);
-//            parser.parseGraph();
-            parser.parseClass();
+            Parser parser = new Parser(lexer);
+            parser.parseGraph();
         } catch (Exception e) {
             e.printStackTrace();
         }
