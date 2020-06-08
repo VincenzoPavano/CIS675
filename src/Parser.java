@@ -1,11 +1,21 @@
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+
 public class Parser {
 
-    private Lexer lexer;
+    private final Lexer lexer;
     private Token lookahead;
+    private final JSONObject jsonGlobal;
+    private final JSONObject json;
+    private String lastKey;
+    private String className;
 
     public Parser(Lexer lexer) {
         this.lexer = lexer;
         this.lookahead = lexer.nextToken();
+        this.jsonGlobal = new JSONObject();
+        this.json = new JSONObject();
+        this.lastKey = "";
     }
 
     private void consume() {
@@ -37,6 +47,7 @@ public class Parser {
 
         // Class name
         if (lookahead.getTokenType() == TokenType.ID) {
+            className = lookahead.getText();
             match(TokenType.ID);
         }
 
@@ -50,10 +61,13 @@ public class Parser {
 
         // Close the class
         match(TokenType.R_BRACE);
+
+        jsonGlobal.put(className, json);
+        System.out.println(jsonGlobal.toJSONString());
     }
 
     private void parseStmtList() {
-        // [ stmt [ ';' ] stmt_list ]c
+        // [ stmt [ ';' ] stmt_list ]
         parseStmt();
 
         if (lookahead.getTokenType() == TokenType.SEMICOLON) {
@@ -68,6 +82,7 @@ public class Parser {
         parseEdgeStmt();
 
         if (lookahead.getTokenType() == TokenType.ID) {
+            // Next layer
             parseIDEqualsID();
         }
 
@@ -75,6 +90,9 @@ public class Parser {
     }
 
     private void parseNodeStmt() {
+        lastKey = lookahead.getText();
+        json.putIfAbsent(lookahead.getText(), null);
+
         match(TokenType.ID);
 
         if (lookahead.getTokenType() == TokenType.L_BRACKET) {
@@ -96,14 +114,14 @@ public class Parser {
         if (lookahead.getTokenType() == TokenType.EDGEOP) {
             match(TokenType.EDGEOP);
 
-//            if (parseNodeId()) {
-//
-            // Return since the parseAttrList() method will match() for us
-//                if (lookahead.getTokenType() == TokenType.L_BRACKET) {
-//                    match(TokenType.L_BRACKET);
-//                }
-            // Recursively call function?
-//            }
+            // Second-level JSON objects
+            JSONObject rhsObj = new JSONObject();
+            JSONObject firstLayer = (JSONObject) json.get(lastKey);
+
+            // Update the key
+            lastKey = lookahead.getText();
+            rhsObj.put(lookahead.getText(), null);
+            firstLayer.putIfAbsent(lastKey, rhsObj);
         }
     }
 
@@ -139,13 +157,20 @@ public class Parser {
 
     private void parseIDEqualsID() {
         if (lookahead.getTokenType() == TokenType.ID) {
+            String key = lookahead.getText();
             match(TokenType.ID);
 
             if (lookahead.getTokenType() == TokenType.EQUAL) {
                 match(TokenType.EQUAL);
 
                 if (lookahead.getTokenType() == TokenType.ID) {
+                    String value = lookahead.getText();
                     match(TokenType.ID);
+
+                    // Update the existing JSON Object with the new one w/ children
+                    JSONObject lastObj = new JSONObject();
+                    lastObj.put(key, value);
+                    json.putIfAbsent(lastKey, lastObj);
                 }
             }
         }
