@@ -1,12 +1,11 @@
-import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
+import org.json.JSONObject;
 
 public class Parser {
 
     private final Lexer lexer;
-    private Token lookahead;
     private final JSONObject jsonGlobal;
     private final JSONObject json;
+    private Token lookahead;
     private String lastKey;
     private String className;
 
@@ -63,7 +62,7 @@ public class Parser {
         match(TokenType.R_BRACE);
 
         jsonGlobal.put(className, json);
-        System.out.println(jsonGlobal.toJSONString());
+        System.out.println(jsonGlobal.toString());
     }
 
     private void parseStmtList() {
@@ -90,8 +89,18 @@ public class Parser {
     }
 
     private void parseNodeStmt() {
+        // Build first level
         lastKey = lookahead.getText();
-        json.putIfAbsent(lookahead.getText(), null);
+        JSONObject firstLevel = json.put(lastKey, new JSONObject());
+        JSONObject secondLevel = firstLevel.getJSONObject(lastKey);
+
+        // Create second-level only if they don't exist
+//        if (!secondLevel.has("attributes")) {
+            // Tie first and second layers together
+            secondLevel.put("attributes", new JSONObject());
+            secondLevel.put("neighbors", new JSONObject());
+//        }
+
 
         match(TokenType.ID);
 
@@ -114,14 +123,17 @@ public class Parser {
         if (lookahead.getTokenType() == TokenType.EDGEOP) {
             match(TokenType.EDGEOP);
 
-            // Second-level JSON objects
-            JSONObject rhsObj = new JSONObject();
+            // "Neighbors"
+//            JSONObject rhsObj = new JSONObject();
             JSONObject firstLayer = (JSONObject) json.get(lastKey);
+            JSONObject neighbors = (JSONObject) firstLayer.get("neighbors");
 
+            neighbors.put(lookahead.getText(), new JSONObject());
             // Update the key
-            lastKey = lookahead.getText();
-            rhsObj.put(lookahead.getText(), null);
-            firstLayer.putIfAbsent(lastKey, rhsObj);
+            //lastKey = lookahead.getText();
+
+//            rhsObj.put(lookahead.getText(), null);
+//            firstLayer.putIfAbsent(lastKey, rhsObj);
         }
     }
 
@@ -168,9 +180,11 @@ public class Parser {
                     match(TokenType.ID);
 
                     // Update the existing JSON Object with the new one w/ children
+                    JSONObject currentObj = (JSONObject) json.get(lastKey);
                     JSONObject lastObj = new JSONObject();
+
                     lastObj.put(key, value);
-                    json.putIfAbsent(lastKey, lastObj);
+                    currentObj.put("attributes", lastObj);
                 }
             }
         }
