@@ -95,12 +95,11 @@ public class Parser {
         JSONObject secondLevel = firstLevel.getJSONObject(lastKey);
 
         // Create second-level only if they don't exist
-//        if (!secondLevel.has("attributes")) {
+        if (!secondLevel.has("attributes")) {
             // Tie first and second layers together
             secondLevel.put("attributes", new JSONObject());
             secondLevel.put("neighbors", new JSONObject());
-//        }
-
+        }
 
         match(TokenType.ID);
 
@@ -124,7 +123,6 @@ public class Parser {
             match(TokenType.EDGEOP);
 
             // "Neighbors"
-//            JSONObject rhsObj = new JSONObject();
             JSONObject firstLayer = (JSONObject) json.get(lastKey);
             JSONObject neighbors = (JSONObject) firstLayer.get("neighbors");
 
