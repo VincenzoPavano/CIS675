@@ -99,18 +99,20 @@ public class Lexer {
                 }
             } else if (currentChar == '\"') {
                 // Property - ignore until the next quote and call "ID"
+                StringBuilder textBuilder = new StringBuilder();
                 consume();
                 while (currentChar != '\"') {
+                    textBuilder.append(currentChar);
                     consume();
                 }
                 consume();
-                t = new Token(TokenType.ID, "");
+                t = new Token(TokenType.ID, textBuilder.toString());
                 // t.toString();
                 return t;
             } else if (Character.isDigit(currentChar)) {
                 consume();
 //                t = new Token(TokenType.NUMBER, "");
-                t = new Token(TokenType.ID, ""); // Returning as a number is throwing off the Parser
+                t = new Token(TokenType.ID, Character.toString(currentChar)); // Returning as a number is throwing off the Parser
                 // t.toString();
                 return t;
             } else if (Character.isLetter(currentChar)) {
