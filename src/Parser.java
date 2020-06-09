@@ -91,14 +91,16 @@ public class Parser {
     private void parseNodeStmt() {
         // Build first level
         lastKey = lookahead.getText();
-        JSONObject firstLevel = json.put(lastKey, new JSONObject());
-        JSONObject secondLevel = firstLevel.getJSONObject(lastKey);
+        if (!json.has(lastKey)) {
+            JSONObject firstLevel = json.put(lastKey, new JSONObject());
+            JSONObject secondLevel = firstLevel.getJSONObject(lastKey);
 
-        // Create second-level only if they don't exist
-        if (!secondLevel.has("attributes")) {
-            // Tie first and second layers together
-            secondLevel.put("attributes", new JSONObject());
-            secondLevel.put("neighbors", new JSONObject());
+            // Create second-level only if they don't exist
+            if (!secondLevel.has("attributes")) {
+                // Tie first and second layers together
+                secondLevel.put("attributes", new JSONObject());
+                secondLevel.put("neighbors", new JSONObject());
+            }
         }
 
         match(TokenType.ID);
@@ -178,7 +180,7 @@ public class Parser {
                     match(TokenType.ID);
 
                     // Update the existing JSON Object with the new one w/ children
-                    JSONObject currentObj = (JSONObject) json.get(lastKey);
+                    JSONObject currentObj = json.getJSONObject(lastKey);
                     JSONObject lastObj = new JSONObject();
 
                     lastObj.put(key, value);
